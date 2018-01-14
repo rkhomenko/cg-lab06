@@ -21,7 +21,8 @@ public:
 
     static constexpr auto VARIANT_DESCRIPTION =
         "Computer grapics lab 6\n"
-        "Variant 20: ellipsoid layer with сolor changing by sinusoidal law\n"
+        "Variant 20: ellipsoid layer with сolor\n"
+        "changing by sinusoidal law\n"
         "Made by Roman Khomenko (8O-308)";
 
 private:
