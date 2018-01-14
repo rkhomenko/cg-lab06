@@ -17,6 +17,8 @@ class QOpenGLBuffer;
 class QOpenGLVertexArrayObject;
 class QOpenGLShaderProgram;
 
+class QTimer;
+
 class MyOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
@@ -30,6 +32,7 @@ public:
                             SizeType vertexCount,
                             SizeType surfaceCount,
                             QWidget* parent = nullptr);
+    ~MyOpenGLWidget();
 
 public slots:
     void ScaleUpSlot();
@@ -53,6 +56,7 @@ protected:
 
 private slots:
     void CleanUp();
+    void OnTimeoutSlot();
 
 private:
     enum RotateType { OX, OY, OZ };
@@ -60,6 +64,7 @@ private:
     static constexpr auto WIDGET_DEFAULT_SIZE = QSize(350, 350);
     static constexpr auto IMAGE_DEFAULT_SIZE = QSize(300, 300);
     static const Vec3 VIEW_POINT;
+    static const float PI;
 
     static constexpr auto VERTEX_SHADER = ":/shaders/vertexShader.glsl";
     static constexpr auto FRAGMENT_SHADER = ":/shaders/fragmentShader.glsl";
@@ -69,6 +74,7 @@ private:
     static constexpr auto AMBIENT_COEFF = "ambientCoeff";
     static constexpr auto DIFFUSE_COEFF = "diffuseCoeff";
     static constexpr auto SPECULAR_COEFF = "specularCoeff";
+    static constexpr auto DIFFUSE_COLOR = "diffuseColor";
 
     static constexpr auto SCALE_FACTOR_PER_ONCE = 1.15f;
 
@@ -104,6 +110,12 @@ private:
     SizeType VertexCount;
     SizeType SurfaceCount;
     LayerVector Layers;
+    QTimer* Timer;
+    FloatType Teta;
+    FloatType Phi;
+    FloatType Red;
+    FloatType Green;
+    FloatType Blue;
 };
 
 #endif  // CG_LAB_MYOPENGLWIDGET_HPP_

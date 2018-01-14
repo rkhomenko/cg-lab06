@@ -16,8 +16,10 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QResizeEvent>
+#include <QTimer>
 
 const Vec3 MyOpenGLWidget::VIEW_POINT = Vec3(0, 0, 1);
+const float MyOpenGLWidget::PI = 4.0f * std::atan(1.0f);
 
 MyOpenGLWidget::MyOpenGLWidget(QWidget* parent)
     : MyOpenGLWidget(0.5, 0.5, 0.5, 4, 5, parent) {}
@@ -41,11 +43,20 @@ MyOpenGLWidget::MyOpenGLWidget(LenghtType a,
       B{b},
       C{c},
       VertexCount{vertexCount},
-      SurfaceCount{surfaceCount} {
+      SurfaceCount{surfaceCount},
+      Teta{0},
+      Phi{0} {
     auto sizePolicy =
         QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setSizePolicy(sizePolicy);
     setMinimumSize(WIDGET_DEFAULT_SIZE);
+
+    Timer = new QTimer;
+    connect(Timer, &QTimer::timeout, this, &MyOpenGLWidget::OnTimeoutSlot);
+}
+
+MyOpenGLWidget::~MyOpenGLWidget() {
+    delete Timer;
 }
 
 void MyOpenGLWidget::ScaleUpSlot() {
@@ -164,6 +175,8 @@ void MyOpenGLWidget::initializeGL() {
 
     VertexArray->release();
     Buffer->release();
+
+    Timer->start(1000);
 }
 
 void MyOpenGLWidget::resizeGL(int width, int height) {
@@ -235,6 +248,33 @@ void MyOpenGLWidget::CleanUp() {
     delete VertexArray;
     delete Buffer;
     delete ShaderProgram;
+}
+
+void MyOpenGLWidget::OnTimeoutSlot() {
+    const auto PI = 4.0f * std::atan(1.0f);
+    const auto delta = PI / 100;
+
+    if (Red < PI / 2) {
+        Red += delta;
+    } else if (Green < PI / 2) {
+        Green += delta;
+    } else if (Blue < PI / 2) {
+        Blue += delta;
+    } else {
+        Red = Green = Blue = 0;
+    }
+
+    auto col = QVector4D(std::sin(Red), std::sin(Green), std::sin(Blue), 1);
+
+    ShaderProgram->bind();
+    ShaderProgram->setUniformValue(DIFFUSE_COLOR, col);
+    ShaderProgram->release();
+
+    UpdateOnChange(width(), height());
+    OnWidgetUpdate();
+    repaint();
+
+    Timer->start(100);
 }
 
 SizeType MyOpenGLWidget::GetVertexCount(const LayerVector& layers) {
@@ -411,4 +451,3 @@ void MyOpenGLWidget::SetUniformValue(const char* name, float value) {
     ShaderProgram->setUniformValue(name, value);
     ShaderProgram->release();
 }
-
